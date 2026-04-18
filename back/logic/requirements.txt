@@ -1,3 +1,9 @@
 fastapi
 psycopg
 uvicorn
+staticfiles
+os
+pydantic
+bcrypt
+secrets
+threading
