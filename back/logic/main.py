@@ -1,9 +1,13 @@
 from database_connection import database_conn
 from fastapi import FastAPI
-from Pydantic import BaseModel
+from pydantic import BaseModel
+from endpoints import Endpoints
 
 
 app = FastAPI()
+endpoints = Endpoints(app)
+endpoints.setup_endpoints()
+
 
 @app.get("/")
 def main_site():
