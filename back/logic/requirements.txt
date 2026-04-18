@@ -1,9 +1,5 @@
-fastapi
+fastapi[standard]
 psycopg
 uvicorn
-staticfiles
-os
 pydantic
 bcrypt
-secrets
-threading
