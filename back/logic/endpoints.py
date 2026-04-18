@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from qr_data import QRData
 from player_data import Player
 from global_config import global_config
 from fastapi import FastAPI, HTTPException, Header, Depends
@@ -60,10 +60,15 @@ class Endpoints:
         def get_name(player = Depends(require_auth)):
             return {"name": player.name}
         
-        @self.app.post("/qr-code/{code_id}")
-        def handle_qr_code(code_id: str, player = Depends(require_auth)):
-            # Tutaj możesz dodać logikę obsługi kodu QR, np. zapisanie informacji o zeskanowanym kodzie
-            return {"message": f"Kod QR {code_id} został zeskanowany przez gracza {player.name} o tokenie {player.token}"}
-
-
+        @self.app.post("/qr-scan/{code_id}")
+        def handle_qr_code_scan(code_id: str, player = Depends(require_auth)):
+            if not code_id:
+                raise HTTPException(status_code=400, detail="code_id jest wymagane")
+            qr_data = QRData.get_by_code_id(code_id)
+            if not qr_data:
+                raise HTTPException(status_code=404, detail="Nie znaleziono danych dla tego kodu QR")
+            if qr_data.has_quiz:
+                #TODO: obsługa quizu
+                pass
+            pass
 
