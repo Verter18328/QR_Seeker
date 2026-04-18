@@ -1,0 +1,2 @@
+[tool.fastapi]
+entrypoint = "back.logic.main:app"

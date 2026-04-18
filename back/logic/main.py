@@ -1,5 +1,6 @@
 from database_connection import database_conn
 from fastapi import FastAPI
+from Pydantic import BaseModel
 
 
 app = FastAPI()
