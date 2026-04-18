@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
 	<title>Podróbka apki</title>
 	<link rel="stylesheet" href="styles/style.css">
 </head>
@@ -16,14 +16,17 @@
 				<img src="resources/profil.svg" alt="">
 			</button>
 		</header>
+
 		<section id="qrKontener">
 			<button id="qrGlowny" aria-label="Skaner QR"></button>
 		</section>
+
 		<section id="powitanie">
 			<h1>Witaj!</h1>
 			<p>w Zespole Szkół Komunikacji <br> im. Hipolita Cegielskiego w Poznaniu</p>
 			<h6>Drzwi otwarte 25 kwietnia 2026</h6>
 		</section>
+
 		<section id="tablica">
 			<h3>Tablica wyników</h3>
 			<div class="wiersz"><span>1 Jan Kowalski</span><span>120</span></div>
@@ -32,24 +35,31 @@
 			<div class="wiersz"><span>4 Kamil Lewandowski</span><span>90</span></div>
 			<div class="wiersz"><span>5 Ola Mazur</span><span>85</span></div>
 		</section>
+
+		<button id="roboczy">przycisk</button>
+
 		<section id="kafle" aria-label="Karuzela informacji">
 			<article class="kafel" data-slajd="szkola"><span>Więcej o szkole</span></article>
 			<article class="kafel" data-slajd="plan"><span>Plan drzwi otwartych</span></article>
 			<article class="kafel" data-slajd="aplikacja"><span>Więcej o aplikacji</span></article>
 		</section>
+
 		<div id="qrMini" aria-label="Mini skaner QR">QR</div>
+
 		<footer>
 			© 2026<br>
 			backend: Filip Jaśkowiak, Adrian Lewek<br>
 			frontend: Natan Dutkiewicz
 		</footer>
 	</main>
+
 	<section id="okno">
 		<div id="poleOkna">
 			<button id="wyjdz" aria-label="Zamknij">✕</button>
 			<div id="trescOkna"></div>
 		</div>
 	</section>
+
 	<script>
 (function(){
 	const kafle=document.getElementById('kafle');
@@ -62,6 +72,7 @@
 	const qrMini=document.getElementById('qrMini');
 	const tablica=document.getElementById('tablica');
 	const logoSzkoly=document.getElementById('logoSzkoly');
+	const roboczy=document.getElementById('roboczy');
 
 	let zalogowany=false;
 	let nazwaUzytkownika='';
@@ -71,42 +82,66 @@
 		nazwa:`Użytkownik ${i+1}`,
 		punkty:Math.floor(150-i+Math.random()*10)
 	}));
+
 	function klonujSlajdy(){
 		oryginalneSlajdy.forEach(s=>kafle.appendChild(s.cloneNode(true)));
 		oryginalneSlajdy.forEach(s=>kafle.insertBefore(s.cloneNode(true),kafle.firstChild));
 	}
+
 	function ustawPoczatekKaruzeli(){
 		const szerokosc=oryginalneSlajdy[0].offsetWidth+14;
 		kafle.scrollLeft=szerokosc*oryginalneSlajdy.length;
 	}
+
 	klonujSlajdy();
 	setTimeout(ustawPoczatekKaruzeli,50);
+
 	kafle.addEventListener('scroll',()=>{
 		const szerokosc=oryginalneSlajdy[0].offsetWidth+14;
 		const calkowita=szerokosc*oryginalneSlajdy.length;
 		if(kafle.scrollLeft<=szerokosc)kafle.scrollLeft+=calkowita;
 		if(kafle.scrollLeft>=calkowita*2)kafle.scrollLeft-=calkowita;
 	});
+
 	function otworzModal(html){
 		trescOkna.innerHTML=html;
 		okno.classList.add('otwarty');
 		document.body.classList.add('modalOtwarty');
 	}
+
 	function zamknijModal(){
 		okno.classList.remove('otwarty');
 		document.body.classList.remove('modalOtwarty');
 	}
+
 	wyjdz.addEventListener('click',zamknijModal);
+
 	okno.addEventListener('click',(e)=>{
 		if(e.target===okno)zamknijModal();
 	});
+
 	logoProfilowe.addEventListener('click',()=>{
 		if(zalogowany){
 			otworzModal(`<h2>Witaj ${nazwaUzytkownika}!</h2><p style="margin-top:10px;font-size:15px;">Jesteś zalogowany.</p><p style="margin-top:20px;font-size:14px;color:#555;">Zespół Szkół Komunikacji życzy miłego dnia!</p>`);
 			return;
 		}
 
-		otworzModal(`<div><div class="tytulLogowania">Zaloguj się</div><div class="infoLogowania">Jeżeli logujesz się po raz pierwszy, nie zapomnij swojego hasła, by w razie przypadkowego wylogowania nie utracić obecnego progresu.</div><form id="formularzLogowania"><div class="poleForm"><label class="etykieta" for="email">Imię i Nazwisko</label><input class="wejscie" type="email" id="email" placeholder="imie nazwisko" required></div><div class="poleForm"><label class="etykieta" for="haslo">Hasło</label><input class="wejscie" type="text" id="haslo" placeholder="" required></div><button type="submit" class="przyciskLogowania">Zaloguj</button></form></div>`);
+		otworzModal(`<div>
+			<div class="tytulLogowania">Zaloguj się</div>
+			<div class="infoLogowania">Jeżeli logujesz się po raz pierwszy, nie zapomnij swojego hasła.</div>
+			<form id="formularzLogowania">
+				<div class="poleForm">
+					<label class="etykieta" for="email">Imię i Nazwisko</label>
+					<input class="wejscie" type="email" id="email" placeholder="imie nazwisko" required>
+				</div>
+				<div class="poleForm">
+					<label class="etykieta" for="haslo">Hasło</label>
+					<input class="wejscie" type="text" id="haslo" placeholder="" required>
+				</div>
+				<button type="submit" class="przyciskLogowania">Zaloguj</button>
+			</form>
+		</div>`);
+
 		document.getElementById('formularzLogowania').addEventListener('submit',(e)=>{
 			e.preventDefault();
 			const email=document.getElementById('email').value.trim();
@@ -119,10 +154,12 @@
 			zamknijModal();
 		});
 	});
+
 	tablica.addEventListener('click',()=>{
 		const wiersze=daneUzytkownikow.map(u=>`<tr><td>${u.miejsce}</td><td>${u.nazwa}</td><td style="text-align:right;">${u.punkty}</td></tr>`).join('');
 		otworzModal(`<h2>Pełna tablica wyników</h2><p style="font-size:13px;color:#777;margin-top:4px;">Lista automatycznie dostosowuje się do liczby użytkowników.</p><table id="pelnaTabela"><thead><tr><th>#</th><th>Uczestnik</th><th style="text-align:right;">Punkty</th></tr></thead><tbody>${wiersze}</tbody></table>`);
 	});
+
 	kafle.addEventListener('click',(e)=>{
 		const kafel=e.target.closest('.kafel');
 		if(!kafel)return;
@@ -130,19 +167,26 @@
 		const typ=kafel.dataset.slajd;
 
 		if(typ==='szkola'){
-			otworzModal(`<h2>Więcej o szkole</h2><p style="margin-top:8px;font-size:14px;color:#555;">Tutaj możesz umieścić szczegółowe informacje o szkole, profilach, pracowniach, projektach.</p>`);
+			otworzModal(`<h2>Więcej o szkole</h2><p style="margin-top:8px;font-size:14px;color:#555;">Tutaj możesz umieścić szczegółowe informacje o szkole.</p>`);
 		}else if(typ==='plan'){
-			otworzModal(`<h2>Plan drzwi otwartych</h2><p style="margin-top:8px;font-size:14px;color:#555;">Harmonogram prezentacji, warsztatów, zwiedzania sal i innych atrakcji.</p>`);
+			otworzModal(`<h2>Plan drzwi otwartych</h2><p style="margin-top:8px;font-size:14px;color:#555;">Harmonogram wydarzeń.</p>`);
 		}else if(typ==='aplikacja'){
-			otworzModal(`<h2>Więcej o aplikacji</h2><p style="margin-top:8px;font-size:14px;color:#555;">Opis funkcji aplikacji, sposobu zbierania punktów, logowania, personalizacji.</p>`);
+			otworzModal(`<h2>Więcej o aplikacji</h2><p style="margin-top:8px;font-size:14px;color:#555;">Opis funkcji aplikacji.</p>`);
 		}
 	});
+
 	function otworzQrModal(){
-		otworzModal(`<h2>Skaner QR</h2><p style="margin-top:8px;font-size:14px;color:#555;">Tutaj może pojawić się interfejs skanera kodów QR lub instrukcja.</p>`);
+		otworzModal(`<h2>Skaner QR</h2><p style="margin-top:8px;font-size:14px;color:#555;">Tutaj może pojawić się skaner QR.</p>`);
 	}
+
+	roboczy.addEventListener('click',()=>{
+		otworzModal(`<h2>okno</h2>`);
+	});
+
 	qrGlowny.addEventListener('click',otworzQrModal);
 	qrMini.addEventListener('click',otworzQrModal);
 	logoSzkoly.addEventListener('click',()=>location.reload());
+
 	window.addEventListener('scroll',()=>{
 		const rect=qrGlowny.getBoundingClientRect();
 		qrMini.classList.toggle('widoczny',rect.bottom<0);
