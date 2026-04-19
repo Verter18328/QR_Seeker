@@ -1,8 +1,8 @@
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
-from endpoints import Endpoints
+from .endpoints import Endpoints
 import os
-from _keep_alive import start_keep_alive
+from ._keep_alive import start_keep_alive
 
 start_keep_alive()
     

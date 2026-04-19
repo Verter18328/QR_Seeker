@@ -1,5 +1,5 @@
-from database_connection import database_conn
-from global_config import global_config
+from .database_connection import database_conn
+from .global_config import global_config
 
 class QRData:
     def __init__(self, id=None, code_id=None, label=None, has_quiz=False):

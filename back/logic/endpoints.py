@@ -1,14 +1,13 @@
 from pydantic import BaseModel
-from qr_data import QRData
-from player_data import Player
-from global_config import global_config
+from .qr_data import QRData
+from .player_data import Player
+from .global_config import global_config
 from fastapi import FastAPI, HTTPException, Header, Depends
 
 
 class Endpoints:
     def __init__(self, fastapi_app):
         self.app = fastapi_app
-
 
     def setup_endpoints(self):
 
