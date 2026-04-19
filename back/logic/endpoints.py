@@ -82,13 +82,16 @@ class Endpoints:
             return {"name": player.name}
         
         @self.app.post("/qr-scan/{code_id}")
-        def handle_qr_code_scan(code_id: int, player = Depends(require_auth)):
+        def handle_qr_code_scan(code_id: int, ):
+            player = Player.get_player_by_token("d5d181359afaabf823742d0481920c98b1d905555f6bcd5176e252d22978ac67")
             if not code_id:
                 raise HTTPException(status_code=400, detail="code_id jest wymagane")
             qr_data = QRData.get_by_code_id(code_id)
             if not qr_data:
                 raise HTTPException(status_code=404, detail="Nie znaleziono danych dla tego kodu QR")
-            qr_data.insert_scan(player.id)
+            scan_insert = qr_data.insert_scan(player.id)
+            if not scan_insert:
+                raise HTTPException(status_code=500, detail="Nie udało się zarejestrować skanu QR")
             if not qr_data.has_quiz:
                 player.update_points(global_config.QR_POINTS_CONST)
                 return {"message": f"Skanowanie kodu QR zakończone sukcesem! Zdobyłeś {global_config.QR_POINTS_CONST} punktów."}

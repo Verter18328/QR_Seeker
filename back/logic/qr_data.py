@@ -10,26 +10,28 @@ class QRData:
     
     @staticmethod
     def get_by_code_id(code_id: int):
-        query = "SELECT id, code, label, has_quiz FROM qr_data WHERE code_id = %s"
+        query = "SELECT id, code, label, has_quiz FROM qr_codes WHERE code = %s"
         result = database_conn.execute_query(query, (code_id,))
         if result:
-            return QRData(id=result[0]['id'], code_id=result[0]['code_id'], label=result[0]['label'], has_quiz=result[0]['has_quiz'])
+            return QRData(id=result[0]['id'], code_id=result[0]['code'], label=result[0]['label'], has_quiz=result[0]['has_quiz'])
         return None
     def insert_scan(self, player_id):
-        query = "INSERT INTO qr_scans (player_id, qr_code_id) VALUES (%s, %s)"
+        query = "INSERT INTO scans (player_id, qr_id) VALUES (%s, %s)"
         result = database_conn.execute_query(query, (player_id, self.id))
         if result is not None:
             return True
-        return False
+        return None
     
 
 
 class QuizzQuestion:
-    def __init__(self, id=None, qr_code_id=None, question_text=None):
+    def __init__(self, id=None, qr_code_id=None, question_text=None, type=None, sort_order=None):
         self.id = id
         self.qr_code_id = qr_code_id
         self.question_text = question_text
         self.answers = {}
+        self.type = type
+        self.sort_order = sort_order
     
     def _get_answers(self):
         self.answers_robocze = QuizzAnswer.get_by_question_id(self.id)
@@ -40,10 +42,10 @@ class QuizzQuestion:
             self.answers = None
     @staticmethod
     def get_by_qr_code_id(qr_code_id: int):
-        query = "SELECT id, qr_code_id, question_text FROM quiz_questions WHERE qr_code_id = %s"
+        query = "SELECT id, qr_id, question_text, question_type, sort_order FROM quiz_questions WHERE qr_id = %s"
         result = database_conn.execute_query(query, (qr_code_id,))
         if result:
-            question = QuizzQuestion(id=result[0]['id'], qr_code_id=result[0]['qr_code_id'], question_text=result[0]['question_text'])
+            question = QuizzQuestion(id=result[0]['id'], qr_code_id=result[0]['qr_id'], question_text=result[0]['question_text'], type=result[0]['question_type'], sort_order=result[0]['sort_order'])
             question._get_answers()
             return question
         return None
@@ -58,8 +60,8 @@ class QuizzAnswer:
 
     @staticmethod
     def get_by_question_id(question_id: int):
-        query = "SELECT id, question_id, answer_text, is_correct FROM quiz_answers WHERE question_id = %s"
+        query = "SELECT id, question_id, option_text, is_correct FROM quiz_options WHERE question_id = %s"
         result = database_conn.execute_query(query, (question_id,))
         if result:
-            return [QuizzAnswer(id=row['id'], question_id=row['question_id'], answer_text=row['answer_text'], is_correct=row['is_correct']) for row in result]
+            return [QuizzAnswer(id=row['id'], question_id=row['question_id'], answer_text=row['option_text'], is_correct=row['is_correct']) for row in result]
         return None
