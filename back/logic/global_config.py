@@ -3,6 +3,10 @@ import secrets
 
 
 class GlobalConfig:
+
+    QR_POINTS_CONST = 5
+    QUIZ_ANSWER_POINTS_CONST = 3
+
     def __init__(self):
         pass
 

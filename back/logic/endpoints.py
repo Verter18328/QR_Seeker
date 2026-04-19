@@ -47,6 +47,14 @@ class Endpoints:
                 raise HTTPException(status_code=400, detail="Nieprawidłowa nazwa użytkownika lub hasło")
             return {"message": "Zalogowano pomyślnie", "token": player.token}
         
+        @self.app.get("/leaderboard-short")
+        def leaderboard_short():
+            limit = 10
+            leaderboard = Player.get_leaderboard(limit)
+            if leaderboard is not None:
+                return {"leaderboard": leaderboard}
+            else:
+                raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
 
         def require_auth(token: str = Header(None)):
             if not token:
@@ -67,8 +75,10 @@ class Endpoints:
             qr_data = QRData.get_by_code_id(code_id)
             if not qr_data:
                 raise HTTPException(status_code=404, detail="Nie znaleziono danych dla tego kodu QR")
-            if qr_data.has_quiz:
-                #TODO: obsługa quizu
-                pass
+            if not qr_data.has_quiz:
+                player.update_points(global_config.QR_POINTS_CONST)
+                return {"message": f"Skanowanie kodu QR zakończone sukcesem! Zdobyłeś {global_config.QR_POINTS_CONST} punktów."}
+
+            #TODO: obsługa quizu
             pass
 
