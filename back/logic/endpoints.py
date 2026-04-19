@@ -17,6 +17,7 @@ class Endpoints:
 
         @self.app.post("/register")
         def register(data: PlayerLoginRequest):
+
             nickname = data.nickname
             password = data.password
             if not nickname or not password:
@@ -35,8 +36,12 @@ class Endpoints:
         
         @self.app.post("/login")
         def login(data: PlayerLoginRequest):
+            print('here', data)
+
             nickname = data.nickname
             password = data.password
+
+
             if not nickname or not password:
                 raise HTTPException(status_code=400, detail="Nazwa użytkownika i hasło są wymagane")
             player = Player.get_player_by_name(nickname)
