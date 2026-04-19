@@ -1,31 +1,38 @@
-document.querySelector('#formularzLogowania').onsubmit = ()=>{
+function logIn(){
     const login = document.querySelector('#login').value;
     const password = document.querySelector('#haslo').value;
 
-    fetch('https://qr-seeker.onrender.com/login', {
+    console.log(login, password);
+
+    fetch('/login', {
         method: 'POST',
-        body: {
-            "nickname": login,
-            "password": password
-        }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            nickname: login,
+            password: password
+        })
     })
     .then(response => response.json())
     .then(data =>{
         if(data.status!=400){
+            console.log('Zalogowano');
             userToken = data.token;
             localStorage.setItem('userToken', userToken);
         }
         else{
-            fetch('https://qr-seeker.onrender.com/register', {
+            console.log('Proba rejestracji');
+            fetch('/register', {
                 method: 'POST',
-                body: {
-                    "nickname": login,
-                    "password": password
-                }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nickname: login,
+                    password: password
+                })
             })
             .then(response => response.json())
             .then(data =>{
                 if(data.status!=400){
+                    console.log('Zarejestrowano');
                     userToken = data.token;
                     localStorage.setItem('userToken', userToken);
                 }
