@@ -82,8 +82,7 @@ class Endpoints:
             return {"name": player.name}
         
         @self.app.post("/qr-scan/{code_id}")
-        def handle_qr_code_scan(code_id: int, ):
-            player = Player.get_player_by_token("d5d181359afaabf823742d0481920c98b1d905555f6bcd5176e252d22978ac67")
+        def handle_qr_code_scan(code_id: int, player = Depends(require_auth)):
             if not code_id:
                 raise HTTPException(status_code=400, detail="code_id jest wymagane")
             qr_data = QRData.get_by_code_id(code_id)
