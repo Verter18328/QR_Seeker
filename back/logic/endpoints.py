@@ -59,6 +59,15 @@ class Endpoints:
                 return {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
+        
+        @self.app.get("/leaderboard-full")
+        def leaderboard_full():
+            limit = None
+            leaderboard = Player.get_leaderboard(limit)
+            if leaderboard is not None:
+                return {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
+            else:
+                raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
 
         def require_auth(token: str = Header(None)):
             if not token:
