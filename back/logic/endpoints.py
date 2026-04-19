@@ -51,7 +51,7 @@ class Endpoints:
             limit = 10
             leaderboard = Player.get_leaderboard(limit)
             if leaderboard is not None:
-                return {"leaderboard": leaderboard}
+                return {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
 
