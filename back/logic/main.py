@@ -8,5 +8,9 @@ app = FastAPI()
 endpoints = Endpoints(app)
 endpoints.setup_endpoints()
 
+@app.get("/health-check")
+def health_check():
+    return {"status": "healthy"}
+
 frontend_path = os.path.join(os.path.dirname(__file__), "../../front")
 app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
