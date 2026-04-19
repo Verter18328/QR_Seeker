@@ -5,14 +5,14 @@ CREATE TABLE players (
     nickname VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     token VARCHAR(64) UNIQUE NOT NULL,
+    points INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE qr_codes (
     id SERIAL PRIMARY KEY,
-    code VARCHAR(100) UNIQUE NOT NULL,
+    code INTEGER UNIQUE NOT NULL,
     label VARCHAR(200),
-    points INT NOT NULL DEFAULT 0,
     has_quiz BOOLEAN NOT NULL DEFAULT false
 );
 

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from qr_data import QRData
+from qr_data import QRData, QuizzQuestion, QuizzAnswer
 from player_data import Player
 from global_config import global_config
 from fastapi import FastAPI, HTTPException, Header, Depends
@@ -69,29 +69,31 @@ class Endpoints:
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
 
-        def require_auth(token: str = Header(None)):
-            if not token:
+        def require_auth(authorization: str = Header(None)):
+            if not authorization:
                 raise HTTPException(status_code=401, detail="Token jest wymagany")
-            player = Player.get_player_by_token(token)
+            player = Player.get_player_by_token(authorization)
             if not player:
                 raise HTTPException(status_code=401, detail="Nieprawidłowy token")
             return player
         
-        @self.app.post("/get-player")
+        @self.app.get("/get-player")
         def get_name(player = Depends(require_auth)):
             return {"name": player.name}
         
         @self.app.post("/qr-scan/{code_id}")
-        def handle_qr_code_scan(code_id: str, player = Depends(require_auth)):
+        def handle_qr_code_scan(code_id: int, player = Depends(require_auth)):
             if not code_id:
                 raise HTTPException(status_code=400, detail="code_id jest wymagane")
             qr_data = QRData.get_by_code_id(code_id)
             if not qr_data:
                 raise HTTPException(status_code=404, detail="Nie znaleziono danych dla tego kodu QR")
+            qr_data.insert_scan(player.id)
             if not qr_data.has_quiz:
                 player.update_points(global_config.QR_POINTS_CONST)
                 return {"message": f"Skanowanie kodu QR zakończone sukcesem! Zdobyłeś {global_config.QR_POINTS_CONST} punktów."}
-
-            #TODO: obsługa quizu
-            pass
-
+            else:
+                question = QuizzQuestion.get_by_qr_code_id(qr_data.id)
+                if not question:
+                    raise HTTPException(status_code=404, detail="Nie znaleziono pytania quizowego dla tego kodu QR")
+                return {"message": "Skanowanie kodu QR zakończone sukcesem! Ten kod QR zawiera quiz. Oto pytanie:", "question": question.question_text, "answers": question.answers}

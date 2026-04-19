@@ -25,7 +25,7 @@ class Player:
         return None
     @staticmethod
     def get_leaderboard(limit):
-        query = "SELECT nickname, points, RANK() OVER (ORDER BY points DESC) as rank FROM players LIMIT %s"
+        query = "SELECT nickname, points, ROW_NUMBER() OVER (ORDER BY points DESC) as rank FROM players LIMIT %s"
         result = database_conn.execute_query(query, (limit,))
         if result:
             leaderboard = [{"nickname": row["nickname"], "points": row["points"], "rank": row["rank"]} for row in result]
