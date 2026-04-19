@@ -1,4 +1,4 @@
-function logIn(){
+function logIn() {
     const login = document.querySelector('#login').value;
     const password = document.querySelector('#haslo').value;
 
@@ -12,16 +12,17 @@ function logIn(){
             password: password
         })
     })
-    .then(response => response.json())
-    .then(data =>{
-        if(data.status!=400){
-            console.log('Zalogowano');
-            userToken = data.token;
-            localStorage.setItem('userToken', userToken);
-        }
-        else{
+    .then(response => {
+        if (response.ok) {
+            return response.json().then(data => {
+                console.log('Zalogowano');
+                userToken = data.token;
+                localStorage.setItem('userToken', userToken);
+            });
+        } 
+        else if (response.status === 400) {
             console.log('Proba rejestracji');
-            fetch('/register', {
+            return fetch('/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -29,16 +30,18 @@ function logIn(){
                     password: password
                 })
             })
-            .then(response => response.json())
-            .then(data =>{
-                if(data.status!=400){
-                    console.log('Zarejestrowano');
-                    userToken = data.token;
-                    localStorage.setItem('userToken', userToken);
-                }
-                else{
+            .then(regResponse => {
+                if (regResponse.ok) {
+                    return regResponse.json().then(data => {
+                        console.log('Zarejestrowano');
+                        userToken = data.token;
+                        localStorage.setItem('userToken', userToken);
+                    });
+                } else {
                     console.log('Wystąpił błąd przy logowaniu!');
                 }
-        });
-    }});
+            });
+        }
+    })
+    .catch(err => console.error("Błąd sieci:", err));
 }
