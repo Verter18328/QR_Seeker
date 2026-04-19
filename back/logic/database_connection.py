@@ -1,6 +1,7 @@
 import os
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.rows import dict_row
+import threading
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
@@ -10,14 +11,27 @@ class DatabaseConnection:
         self.database_url = database_url
         self.conn = None
         self.cursor = None
+        self._timer = None
 
     def get_connection(self):
-        return psycopg2.connect(self.database_url, cursor_factory=RealDictCursor)
+        return psycopg.connect(self.database_url, row_factory=dict_row)
+    
+    def _schedule_close(self):
+        if self._timer:
+            self._timer.cancel()
+        self._timer = threading.Timer(5.0, self._close_connection)
+        self._timer.start()
+    
+    def _close_connection(self):
+        if self.conn:
+            self.conn.close()
+            self.conn = None
+        self._timer = None
     
     def execute_query(self, query, params=None):
         if self.conn is None:
             self.conn = self.get_connection()
-            self.cursor = self.conn.cursor()
+        self.cursor = self.conn.cursor()
         query = query.strip()
         first_word = query.split()[0].upper()
         result = None
@@ -26,7 +40,7 @@ class DatabaseConnection:
                 self.cursor.execute(query, params)
             else:
                 self.cursor.execute(query)
-        except psycopg2.Error as e:
+        except psycopg.Error as e:
             print(f"Database error: {e}")
             self.conn.rollback()
             return None
@@ -35,8 +49,8 @@ class DatabaseConnection:
         elif first_word == "INSERT":
             try:
                 self.conn.commit()
-                result = self.cursor.lastrowid
-            except psycopg2.Error as e:
+                result = self.cursor.fetchone()
+            except psycopg.Error as e:
                 print(f"Database error: {e}")
                 self.conn.rollback()
                 return None
@@ -44,11 +58,12 @@ class DatabaseConnection:
             try:
                 self.conn.commit()
                 result = self.cursor.rowcount
-            except psycopg2.Error as e:
+            except psycopg.Error as e:
                 print(f"Database error: {e}")
                 self.conn.rollback()
                 return None
         self.cursor.close()
+        self._schedule_close()
         return result
     
 database_conn = DatabaseConnection()

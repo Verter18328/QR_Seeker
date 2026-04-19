@@ -1,19 +1,18 @@
-from database_connection import database_conn
+from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
-from Pydantic import BaseModel
+from endpoints import Endpoints
+import os
+from _keep_alive import start_keep_alive
 
-
+start_keep_alive()
+    
 app = FastAPI()
+endpoints = Endpoints(app)
+endpoints.setup_endpoints()
 
-@app.get("/")
-def main_site():
-    return {"message": "Welcome to the main site!"}
+@app.get("/health-check")
+def health_check():
+    return {"status": "healthy"}
 
-players = [
-    {"id": 1, "name": "Player One"},
-    {"id": 2, "name": "Player Two"},
-]
-
-@app.get("/players")
-def get_players():
-    return players
+frontend_path = os.path.join(os.path.dirname(__file__), "../../front")
+app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")

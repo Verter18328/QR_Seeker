@@ -1,0 +1,6 @@
+fastapi[standard]
+psycopg
+uvicorn
+pydantic
+bcrypt
+requests
