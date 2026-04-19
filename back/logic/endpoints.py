@@ -1,7 +1,7 @@
 from pydantic import BaseModel
-from .qr_data import QRData
-from .player_data import Player
-from .global_config import global_config
+from qr_data import QRData
+from player_data import Player
+from global_config import global_config
 from fastapi import FastAPI, HTTPException, Header, Depends
 
 
