@@ -128,7 +128,7 @@
 
 	logoProfilowe.addEventListener('click',()=>{
 		if(zalogowany){
-			otworzModal(`<h2>Witaj ${nazwaUzytkownika}!</h2><p style="margin-top:10px;font-size:15px;">Jesteś zalogowany.</p><p style="margin-top:20px;font-size:14px;color:#555;">Zespół Szkół Komunikacji życzy miłego dnia!</p>`);
+			otworzModal(`<h2>Witaj, ${nazwaUzytkownika}!</h2><p style="margin-top:10px;font-size:15px;">Jesteś zalogowany.</p><p style="margin-top:20px;font-size:14px;color:#555;">Zespół Szkół Komunikacji życzy miłego dnia!</p>`);
 			return;
 		}
 
@@ -158,9 +158,37 @@
 			zalogowany=true;
 			logoProfilowe.classList.add('zalogowany');
 			logoProfilowe.innerHTML=login.charAt(0).toUpperCase();
+			nazwaUzytkownika = login;
 			zamknijModal();
 		});
 	});
+
+	document.addEventListener('DOMContentLoaded', ()=>{
+		const userToken = localStorage.getItem('userToken') || null;
+
+		if(userToken){
+			fetch('/get-player', {
+				method: 'POST',
+				headers: { 
+					'Content-Type': 'application/json',
+					'token': userToken
+				}, 
+			})
+			.then(response => {
+				if(response.ok){
+					return response.json().then(data => {
+						console.log('Pobrano użytkownika ', data.name)
+						zalogowany=true;
+						logoProfilowe.classList.add('zalogowany');
+						logoProfilowe.innerHTML = data.name.charAt(0).toUpperCase();
+						nazwaUzytkownika = data.name;
+					})
+				}
+			})
+				
+		}
+		
+	})
 
 	tablica.addEventListener('click',()=>{
 		const wiersze=daneUzytkownikow.map(u=>`<tr><td>${u.miejsce}</td><td>${u.nazwa}</td><td style="text-align:right;">${u.punkty}</td></tr>`).join('');
