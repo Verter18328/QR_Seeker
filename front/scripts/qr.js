@@ -28,7 +28,7 @@ function createQrScaner(){
 				})
 			}
             else{
-
+                document.getElementById('result-info').innerText = "Wystąpił błąd podczas skanowania kodu qr!";
             }
 		})
     }
