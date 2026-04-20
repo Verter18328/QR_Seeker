@@ -9,7 +9,7 @@ class DatabaseConnection:
     
     def __init__(self, database_url=DATABASE_URL):
         self.database_url = database_url
-        self._pool = ConnectionPool(database_url, kwargs={"row_factory": dict_row}, min_size=1, max_size=10)
+        self._pool = ConnectionPool(database_url, kwargs={"row_factory": dict_row}, min_size=1, max_size=10, max_idle=300)
 
     def execute_query(self, query, params=None):
         query = query.strip()
@@ -24,7 +24,10 @@ class DatabaseConnection:
                     cursor.execute(query)
             except psycopg.Error as e:
                 print(f"Database error: {e}")
-                conn.rollback()
+                try:
+                    conn.rollback()
+                except psycopg.Error:
+                    pass
                 return None
             if first_word == "SELECT":
                 result = cursor.fetchall()
@@ -34,7 +37,10 @@ class DatabaseConnection:
                     result = cursor.fetchone()
                 except psycopg.Error as e:
                     print(f"Database error: {e}")
-                    conn.rollback()
+                    try:
+                        conn.rollback()
+                    except psycopg.Error:
+                        pass
                     return None
             else:
                 try:
@@ -42,7 +48,10 @@ class DatabaseConnection:
                     result = cursor.rowcount
                 except psycopg.Error as e:
                     print(f"Database error: {e}")
-                    conn.rollback()
+                    try:
+                        conn.rollback()
+                    except psycopg.Error:
+                        pass
                     return None
         return result
     
