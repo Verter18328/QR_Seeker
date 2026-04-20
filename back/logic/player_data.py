@@ -31,9 +31,8 @@ class Player:
         else:
             query = "SELECT nickname, points, ROW_NUMBER() OVER (ORDER BY points DESC) as rank FROM players"
             result = database_conn.execute_query(query)
-        if result:
-            leaderboard = [{"nickname": row["nickname"], "points": row["points"], "rank": row["rank"]} for row in result]
-            return leaderboard
+        if result is not None:
+            return [{"nickname": row["nickname"], "points": row["points"], "rank": row["rank"]} for row in result]
         return None
     def save_player(self):
         query = "INSERT INTO players (nickname, password_hash, token) VALUES (%s, %s, %s) RETURNING id"

@@ -36,11 +36,12 @@ class QRData:
     def get_all_player_scans(self, player_id):
         query = "SELECT qr_id FROM scans WHERE player_id = %s"
         result = database_conn.execute_query(query, (player_id,))
-        if result:
+        if result is not None:
             return {
                 "total_scans_number": len(result),
                 "scanned_qr_codes": [row['qr_id'] for row in result]
             }
+        return None
     
 
 
