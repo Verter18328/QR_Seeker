@@ -56,7 +56,9 @@ class Endpoints:
             limit = 10
             leaderboard = Player.get_leaderboard(limit)
             if leaderboard is not None:
-                return {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
+                return {"all_points": global_config.ALL_POINTS, "leaderboard": [
+                    {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
+                    ]}
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
         
@@ -65,7 +67,9 @@ class Endpoints:
             limit = None
             leaderboard = Player.get_leaderboard(limit)
             if leaderboard is not None:
-                return {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
+                return {"all_points": global_config.ALL_POINTS, "leaderboard": [
+                    {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
+                    ]}
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
 
@@ -95,19 +99,22 @@ class Endpoints:
                 player.update_points(global_config.QR_POINTS_CONST)
                 return {"message": f"Skanowanie kodu QR zakończone sukcesem! Zdobyłeś {global_config.QR_POINTS_CONST} punktów.", "label": qr_data.label}
             else:
-                question = QuizzQuestion.get_by_qr_code_id(qr_data.id)
-                if not question:
+                questions = QuizzQuestion.get_by_qr_code_id(qr_data.id)
+                if not questions:
                     raise HTTPException(status_code=404, detail="Nie znaleziono pytania quizowego dla tego kodu QR")
-                if not question.answers:
-                    raise HTTPException(status_code=404, detail="Nie znaleziono odpowiedzi dla tego pytania quizowego")
-                return {
-                        "message": "Skanowanie kodu QR zakończone sukcesem! Ten kod QR zawiera quiz.",
-                        "label": qr_data.label, 
+                for question in questions:
+                    if not question.answers:
+                        raise HTTPException(status_code=404, detail=f"Nie znaleziono odpowiedzi dla {question.question_text}")
+                return {"message": "Skanowanie kodu QR zakończone sukcesem! Ten kod QR zawiera quiz.",
+                    "label": qr_data.label,
+                    "questions": [
+                    { 
                         "question_id": question.id,
                         "type": question.type, 
                         "question": question.question_text, 
                         "answers": question.answers
-                        }
+                    } for question in questions
+                ]}
         @self.app.post("/submit-quiz-answer/{answer}/{question_id}")
         def submit_quiz_answer(answer: str, question_id: int, player = Depends(require_auth)):
             if not answer or not question_id:
