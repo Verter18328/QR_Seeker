@@ -85,8 +85,6 @@ class Endpoints:
         def get_name(player = Depends(require_auth)):
             return {"name": player.name}
         
-
-        
         @self.app.get("/qr-scan/{code_id}")
         def handle_qr_code_scan(code_id: int, player = Depends(require_auth)):
             if not code_id:

@@ -67,166 +67,167 @@
 	<script src="scripts/qr.js"></script>
 	<script src="scripts/quizz.js"></script>
 	<script>
-(function(){
-	const kafle=document.getElementById('kafle');
-	const oryginalneSlajdy=[...kafle.children];
-	const okno=document.getElementById('okno');
-	const trescOkna=document.getElementById('trescOkna');
-	const wyjdz=document.getElementById('wyjdz');
-	const logoProfilowe=document.getElementById('logoProfilowe');
-	const qrGlowny=document.getElementById('qrGlowny');
-	const qrMini=document.getElementById('qrMini');
-	const tablica=document.getElementById('tablica');
-	const logoSzkoly=document.getElementById('logoSzkoly');
-	const roboczy=document.getElementById('roboczy');
+		(function(){
+			const kafle=document.getElementById('kafle');
+			const oryginalneSlajdy=[...kafle.children];
+			const okno=document.getElementById('okno');
+			const trescOkna=document.getElementById('trescOkna');
+			const wyjdz=document.getElementById('wyjdz');
+			const logoProfilowe=document.getElementById('logoProfilowe');
+			const qrGlowny=document.getElementById('qrGlowny');
+			const qrMini=document.getElementById('qrMini');
+			const tablica=document.getElementById('tablica');
+			const logoSzkoly=document.getElementById('logoSzkoly');
+			const roboczy=document.getElementById('roboczy');
 
-	let zalogowany=false;
-	let nazwaUzytkownika='';
+			let zalogowany=false;
+			let nazwaUzytkownika='';
 
-	const daneUzytkownikow=Array.from({length:120},(_,i)=>({
-		miejsce:i+1,
-		nazwa:`Użytkownik ${i+1}`,
-		punkty:Math.floor(150-i+Math.random()*10)
-	}));
+			const daneUzytkownikow=Array.from({length:120},(_,i)=>({
+				miejsce:i+1,
+				nazwa:`Użytkownik ${i+1}`,
+				punkty:Math.floor(150-i+Math.random()*10)
+			}));
 
-	function klonujSlajdy(){
-		oryginalneSlajdy.forEach(s=>kafle.appendChild(s.cloneNode(true)));
-		oryginalneSlajdy.forEach(s=>kafle.insertBefore(s.cloneNode(true),kafle.firstChild));
-	}
+			function klonujSlajdy(){
+				oryginalneSlajdy.forEach(s=>kafle.appendChild(s.cloneNode(true)));
+				oryginalneSlajdy.forEach(s=>kafle.insertBefore(s.cloneNode(true),kafle.firstChild));
+			}
 
-	function ustawPoczatekKaruzeli(){
-		const szerokosc=oryginalneSlajdy[0].offsetWidth+14;
-		kafle.scrollLeft=szerokosc*oryginalneSlajdy.length;
-	}
+			function ustawPoczatekKaruzeli(){
+				const szerokosc=oryginalneSlajdy[0].offsetWidth+14;
+				kafle.scrollLeft=szerokosc*oryginalneSlajdy.length;
+			}
 
-	klonujSlajdy();
-	setTimeout(ustawPoczatekKaruzeli,50);
+			klonujSlajdy();
+			setTimeout(ustawPoczatekKaruzeli,50);
 
-	kafle.addEventListener('scroll',()=>{
-		const szerokosc=oryginalneSlajdy[0].offsetWidth+14;
-		const calkowita=szerokosc*oryginalneSlajdy.length;
-		if(kafle.scrollLeft<=szerokosc)kafle.scrollLeft+=calkowita;
-		if(kafle.scrollLeft>=calkowita*2)kafle.scrollLeft-=calkowita;
-	});
+			kafle.addEventListener('scroll',()=>{
+				const szerokosc=oryginalneSlajdy[0].offsetWidth+14;
+				const calkowita=szerokosc*oryginalneSlajdy.length;
+				if(kafle.scrollLeft<=szerokosc)kafle.scrollLeft+=calkowita;
+				if(kafle.scrollLeft>=calkowita*2)kafle.scrollLeft-=calkowita;
+			});
 
-	function otworzModal(html){
-		trescOkna.innerHTML=html;
-		okno.classList.add('otwarty');
-		document.body.classList.add('modalOtwarty');
-	}
+			function otworzModal(html){
+				trescOkna.innerHTML=html;
+				okno.classList.add('otwarty');
+				document.body.classList.add('modalOtwarty');
+			}
 
-	function zamknijModal(){
-		okno.classList.remove('otwarty');
-		document.body.classList.remove('modalOtwarty');
-	}
+			function zamknijModal(){
+				okno.classList.remove('otwarty');
+				document.body.classList.remove('modalOtwarty');
+			}
 
-	wyjdz.addEventListener('click',zamknijModal);
+			wyjdz.addEventListener('click',zamknijModal);
 
-	okno.addEventListener('click',(e)=>{
-		if(e.target===okno)zamknijModal();
-	});
+			okno.addEventListener('click',(e)=>{
+				if(e.target===okno)zamknijModal();
+			});
 
-	logoProfilowe.addEventListener('click',()=>{
-		if(zalogowany){
-			otworzModal(`<h2>Witaj, ${nazwaUzytkownika}!</h2><p style="margin-top:10px;font-size:15px;">Jesteś zalogowany.</p><p style="margin-top:20px;font-size:14px;color:#555;">Zespół Szkół Komunikacji życzy miłego dnia!</p>`);
-			return;
-		}
-
-		otworzModal(`<div>
-			<div class="tytulLogowania">Zaloguj się</div>
-			<div class="infoLogowania">Jeżeli logujesz się po raz pierwszy, nie zapomnij swojego hasła.</div>
-			<form id="formularzLogowania">
-				<div class="poleForm">
-					<label class="etykieta" for="login">Imię i Nazwisko</label>
-					<input class="wejscie" type="text" id="login" placeholder="np. Jan Kowalski" required>
-				</div>
-				<div class="poleForm">
-					<label class="etykieta" for="haslo">Hasło</label>
-					<input class="wejscie" type="password" id="haslo" placeholder="" required>
-				</div>
-				<button type="submit" class="przyciskLogowania">Zaloguj</button>
-			</form>
-		</div>`);
-
-		document.getElementById('formularzLogowania').addEventListener('submit',(e)=>{
-			e.preventDefault();
-			const login=document.getElementById('login').value.trim();
-			if(!login)return;
-
-			logIn();
-
-			zalogowany=true;
-			logoProfilowe.classList.add('zalogowany');
-			logoProfilowe.innerHTML=login.charAt(0).toUpperCase();
-			nazwaUzytkownika = login;
-			zamknijModal();
-		});
-	});
-
-	document.addEventListener('DOMContentLoaded', ()=>{
-		const userToken = localStorage.getItem('userToken') || null;
-
-		if(userToken){
-			fetch('/get-player', {
-				method: 'GET',
-				headers: { 
-					'Content-Type': 'application/json',
-					'Authorization': userToken
-				}, 
-			})
-			.then(response => {
-				if(response.ok){
-					return response.json().then(data => {
-						console.log('Pobrano użytkownika ', data.name)
-						zalogowany=true;
-						logoProfilowe.classList.add('zalogowany');
-						logoProfilowe.innerHTML = data.name.charAt(0).toUpperCase();
-						nazwaUzytkownika = data.name;
-					})
+			logoProfilowe.addEventListener('click',()=>{
+				if(zalogowany){
+					otworzModal(`<h2>Witaj, ${nazwaUzytkownika}!</h2><p style="margin-top:10px;font-size:15px;">Jesteś zalogowany.</p><p style="margin-top:20px;font-size:14px;color:#555;">Zespół Szkół Komunikacji życzy miłego dnia!</p>`);
+					return;
 				}
-			})
+
+				otworzModal(`<div>
+					<div class="tytulLogowania">Zaloguj się</div>
+					<div class="infoLogowania">Jeżeli logujesz się po raz pierwszy, nie zapomnij swojego hasła.</div>
+					<form id="formularzLogowania">
+						<div class="poleForm">
+							<label class="etykieta" for="login">Imię i Nazwisko</label>
+							<input class="wejscie" type="text" id="login" placeholder="np. Jan Kowalski" required>
+						</div>
+						<div class="poleForm">
+							<label class="etykieta" for="haslo">Hasło</label>
+							<input class="wejscie" type="password" id="haslo" placeholder="" required>
+						</div>
+						<button type="submit" class="przyciskLogowania">Zaloguj</button>
+					</form>
+				</div>`);
+
+				document.getElementById('formularzLogowania').addEventListener('submit',(e)=>{
+					e.preventDefault();
+					const login=document.getElementById('login').value.trim();
+					if(!login)return;
+
+					logIn();
+
+					zalogowany=true;
+					logoProfilowe.classList.add('zalogowany');
+					logoProfilowe.innerHTML=login.charAt(0).toUpperCase();
+					nazwaUzytkownika = login;
+					zamknijModal();
+				});
+			});
+
+			document.addEventListener('DOMContentLoaded', ()=>{
+				const userToken = localStorage.getItem('userToken') || null;
+
+				if(userToken){
+					fetch('/get-player', {
+						method: 'GET',
+						headers: { 
+							'Content-Type': 'application/json',
+							'Authorization': userToken
+						}
+					})
+					.then(response => {
+						if(response.ok){
+							return response.json().then(data => {
+								console.log('Pobrano użytkownika ', data.name)
+								zalogowany=true;
+								logoProfilowe.classList.add('zalogowany');
+								logoProfilowe.innerHTML = data.name.charAt(0).toUpperCase();
+								nazwaUzytkownika = data.name;
+							})
+						}
+					})
+						
+				}
 				
-		}
-		
-	})
+			})
 
-	tablica.addEventListener('click',()=>{
-		const wiersze=daneUzytkownikow.map(u=>`<tr><td>${u.miejsce}</td><td>${u.nazwa}</td><td style="text-align:right;">${u.punkty}</td></tr>`).join('');
-		otworzModal(`<h2>Pełna tablica wyników</h2><p style="font-size:13px;color:#777;margin-top:4px;">Lista automatycznie dostosowuje się do liczby użytkowników.</p><table id="pelnaTabela"><thead><tr><th>#</th><th>Uczestnik</th><th style="text-align:right;">Punkty</th></tr></thead><tbody>${wiersze}</tbody></table>`);
-	});
+			tablica.addEventListener('click',()=>{
+				const wiersze=daneUzytkownikow.map(u=>`<tr><td>${u.miejsce}</td><td>${u.nazwa}</td><td style="text-align:right;">${u.punkty}</td></tr>`).join('');
+				otworzModal(`<h2>Pełna tablica wyników</h2><p style="font-size:13px;color:#777;margin-top:4px;">Lista automatycznie dostosowuje się do liczby użytkowników.</p><table id="pelnaTabela"><thead><tr><th>#</th><th>Uczestnik</th><th style="text-align:right;">Punkty</th></tr></thead><tbody>${wiersze}</tbody></table>`);
+			});
 
-	kafle.addEventListener('click',(e)=>{
-		const kafel=e.target.closest('.kafel');
-		if(!kafel)return;
+			kafle.addEventListener('click',(e)=>{
+				const kafel=e.target.closest('.kafel');
+				if(!kafel)return;
 
-		const typ=kafel.dataset.slajd;
+				const typ=kafel.dataset.slajd;
 
-		if(typ==='szkola'){
-			otworzModal(`<h2>Więcej o szkole</h2><p style="margin-top:8px;font-size:14px;color:#555;">Tutaj możesz umieścić szczegółowe informacje o szkole.</p>`);
-		}else if(typ==='plan'){
-			otworzModal(`<h2>Plan drzwi otwartych</h2><p style="margin-top:8px;font-size:14px;color:#555;">Harmonogram wydarzeń.</p>`);
-		}else if(typ==='aplikacja'){
-			otworzModal(`<h2>Więcej o aplikacji</h2><p style="margin-top:8px;font-size:14px;color:#555;">Opis funkcji aplikacji.</p>`);
-		}
-	});
+				if(typ==='szkola'){
+					otworzModal(`<h2>Więcej o szkole</h2><p style="margin-top:8px;font-size:14px;color:#555;">Tutaj możesz umieścić szczegółowe informacje o szkole.</p>`);
+				}else if(typ==='plan'){
+					otworzModal(`<h2>Plan drzwi otwartych</h2><p style="margin-top:8px;font-size:14px;color:#555;">Harmonogram wydarzeń.</p>`);
+				}else if(typ==='aplikacja'){
+					otworzModal(`<h2>Więcej o aplikacji</h2><p style="margin-top:8px;font-size:14px;color:#555;">Opis funkcji aplikacji.</p>`);
+				}
+			});
 
-	function otworzQrModal(){
-		otworzModal(`<h2>Skaner QR</h2><div id="reader" style="width: 100%; max-width: 500px; margin: auto; border: 1px solid #ccc;"></div>`);
-	}
+			function otworzQrModal(){
+				otworzModal(`<h2>Skaner QR</h2> <h3 id="result-info"></h3><div id="reader" style="width: 100%; height: 80%; max-width: 500px; margin: auto; border: 1px solid #ccc;"></div><button display="none" id="quiz_button">Przejdź do quizu!</button>`);
+				createQrScaner();
+			}
 
-	roboczy.addEventListener('click',()=>{
-		otworzModal(`<h2>okno</h2>`);
-	});
+			roboczy.addEventListener('click',()=>{
+				otworzModal(`<h2>okno</h2>`);
+			});
 
-	qrGlowny.addEventListener('click',otworzQrModal);
-	qrMini.addEventListener('click',otworzQrModal);
-	logoSzkoly.addEventListener('click',()=>location.reload());
+			qrGlowny.addEventListener('click',otworzQrModal);
+			qrMini.addEventListener('click',otworzQrModal);
+			logoSzkoly.addEventListener('click',()=>location.reload());
 
-	window.addEventListener('scroll',()=>{
-		const rect=qrGlowny.getBoundingClientRect();
-		qrMini.classList.toggle('widoczny',rect.bottom<0);
-	});
-})();
+			window.addEventListener('scroll',()=>{
+				const rect=qrGlowny.getBoundingClientRect();
+				qrMini.classList.toggle('widoczny',rect.bottom<0);
+			});
+		})();
 	</script>
 	
 </body>
