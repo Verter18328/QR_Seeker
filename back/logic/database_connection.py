@@ -34,6 +34,7 @@ class DatabaseConnection:
             except psycopg.ProgrammingError:
                 result = cursor.rowcount
             conn.commit()
+            return result
         else:
             conn.commit()
             return cursor.rowcount
