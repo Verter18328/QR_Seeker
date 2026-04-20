@@ -158,6 +158,7 @@
 			});
 
 			document.addEventListener('DOMContentLoaded', ()=>{
+				// Pobierz token i dane gracza
 				const userToken = localStorage.getItem('userToken') || null;
 				if(userToken){
 					fetch('/get-player', {
@@ -180,6 +181,7 @@
 					})
 				}
 				
+				// Leaderboard loading
 				fetch('/leaderboard-short', {
 					method: 'GET',
 					headers: { 
