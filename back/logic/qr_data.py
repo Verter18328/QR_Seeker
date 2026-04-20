@@ -37,13 +37,22 @@ class QuizzQuestion:
         self.answers_robocze = QuizzAnswer.get_by_question_id(self.id)
         if self.answers_robocze is not None:
             for answer in self.answers_robocze:
-                self.answers[answer.answer_text] = answer.is_correct
+                self.answers[answer.answer_text] = answer.is_correct, answer.id
         else:
             self.answers = None
     @staticmethod
     def get_by_qr_code_id(qr_code_id: int):
         query = "SELECT id, qr_id, question_text, question_type, sort_order FROM quiz_questions WHERE qr_id = %s"
         result = database_conn.execute_query(query, (qr_code_id,))
+        if result:
+            question = QuizzQuestion(id=result[0]['id'], qr_code_id=result[0]['qr_id'], question_text=result[0]['question_text'], type=result[0]['question_type'], sort_order=result[0]['sort_order'])
+            question._get_answers()
+            return question
+        return None
+    @staticmethod
+    def get_by_id(question_id: int):
+        query = "SELECT id, qr_id, question_text, question_type, sort_order FROM quiz_questions WHERE id = %s"
+        result = database_conn.execute_query(query, (question_id,))
         if result:
             question = QuizzQuestion(id=result[0]['id'], qr_code_id=result[0]['qr_id'], question_text=result[0]['question_text'], type=result[0]['question_type'], sort_order=result[0]['sort_order'])
             question._get_answers()

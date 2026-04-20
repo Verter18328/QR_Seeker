@@ -69,10 +69,10 @@ class Endpoints:
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
 
-        def require_auth(authorization: str = Header(None)):
-            if not authorization:
+        def require_auth(Authorization: str = Header(None)):
+            if not Authorization:
                 raise HTTPException(status_code=401, detail="Token jest wymagany")
-            player = Player.get_player_by_token(authorization)
+            player = Player.get_player_by_token(Authorization)
             if not player:
                 raise HTTPException(status_code=401, detail="Nieprawidłowy token")
             return player
@@ -93,9 +93,40 @@ class Endpoints:
                 raise HTTPException(status_code=500, detail="Nie udało się zarejestrować skanu QR")
             if not qr_data.has_quiz:
                 player.update_points(global_config.QR_POINTS_CONST)
-                return {"message": f"Skanowanie kodu QR zakończone sukcesem! Zdobyłeś {global_config.QR_POINTS_CONST} punktów."}
+                return {"message": f"Skanowanie kodu QR zakończone sukcesem! Zdobyłeś {global_config.QR_POINTS_CONST} punktów.", "label": qr_data.label}
             else:
                 question = QuizzQuestion.get_by_qr_code_id(qr_data.id)
                 if not question:
                     raise HTTPException(status_code=404, detail="Nie znaleziono pytania quizowego dla tego kodu QR")
-                return {"message": "Skanowanie kodu QR zakończone sukcesem! Ten kod QR zawiera quiz. Oto pytanie:", "question": question.question_text, "answers": question.answers}
+                if not question.answers:
+                    raise HTTPException(status_code=404, detail="Nie znaleziono odpowiedzi dla tego pytania quizowego")
+                return {
+                        "message": "Skanowanie kodu QR zakończone sukcesem! Ten kod QR zawiera quiz.",
+                        "label": qr_data.label, 
+                        "question_id": question.id,
+                        "type": question.type, 
+                        "question": question.question_text, 
+                        "answers": question.answers
+                        }
+        @self.app.post("/submit-quiz-answer/{answer}/{question_id}")
+        def submit_quiz_answer(answer: str, question_id: int, player = Depends(require_auth)):
+            if not answer or not question_id:
+                raise HTTPException(status_code=400, detail="answer i question_id są wymagane")
+            question = QuizzQuestion.get_by_id(question_id)
+            if not question:
+                raise HTTPException(status_code=404, detail="Nie znaleziono pytania quizowego o podanym ID")
+            if question.type == "text":
+                if answer in question.answers and question.answers[answer][0]:
+                    player.update_points(global_config.QUIZ_POINTS_CONST)
+                    return {"message": f"Odpowiedź poprawna! Zdobyłeś {global_config.QUIZ_POINTS_CONST} punktów."}
+                else:
+                    return {"message": "Odpowiedź niepoprawna."}
+            else:
+                if answer not in question.answers:
+                    raise HTTPException(status_code=404, detail="Nie znaleziono odpowiedzi o podanym tekście dla tego pytania quizowego")
+                is_correct, answer_id = question.answers[answer]
+                if is_correct:
+                    player.update_points(global_config.QUIZ_POINTS_CONST)
+                    return {"message": f"Odpowiedź poprawna! Zdobyłeś {global_config.QUIZ_POINTS_CONST} punktów."}
+                else:
+                    return {"message": "Odpowiedź niepoprawna."}
