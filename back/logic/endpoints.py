@@ -137,3 +137,11 @@ class Endpoints:
                     return {"message": f"Odpowiedź poprawna! Zdobyłeś {global_config.QUIZ_POINTS_CONST} punktów."}
                 else:
                     return {"message": "Odpowiedź niepoprawna."}
+                
+        @self.app.get("/player-scans")
+        def get_player_scans(player = Depends(require_auth)):
+            scans_data = QRData().get_all_player_scans(player.id)
+            if scans_data is not None:
+                return scans_data
+            else:
+                raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")

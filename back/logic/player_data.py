@@ -43,3 +43,4 @@ class Player:
         query = "UPDATE players SET points = points + %s WHERE id = %s"
         database_conn.execute_query(query, (points, self.id))
         self.points += points
+    
