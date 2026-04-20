@@ -19,7 +19,7 @@
 		</header>
 
 		<section id="qrKontener">
-			<button id="qrGlowny" aria-label="Skaner QR"></button>
+			<button id="qrGlowny" aria-label="Skaner QR"><img src="resources/qr.png" id="qrImage"></button>
 		</section>
 
 		<section id="powitanie">
@@ -55,7 +55,6 @@
 			<div id="trescOkna"></div>
 		</div>
 	</section>
-
 
 	<script src="scripts/index.js"></script>
 	<script src="scripts/auth.js"></script>
@@ -197,14 +196,37 @@
 							leaderboard.forEach(element => {
 								const wiersz=document.createElement('div');
 								wiersz.classList.add('wiersz');
-								wiersz.innerHTML=`<span class="numer_imie">${element.rank} ${element.nickname}</span><span class="punkty">${element.points}</span>`;
+								
+								// lewa część: pozycja i nick
+								const lewa = document.createElement('span');
+								lewa.className = 'numer_imie';
+								lewa.textContent = `${element.rank} ${element.nickname}`;
+								
+								// środkowa część: pasek postępu
+								const procent = (element.points / punktyMax) * 100;
+								const pasekKontener = document.createElement('div');
+								pasekKontener.className = 'pasek-kontener';
+								const pasek = document.createElement('div');
+								pasek.className = 'pasek-wypelnienie';
+								pasek.style.width = `${procent}%`;
+								pasekKontener.appendChild(pasek);
+								
+								// prawa część: punkty
+								const punktySpan = document.createElement('span');
+								punktySpan.className = 'punkty';
+								punktySpan.textContent = element.points;
+								
+								wiersz.appendChild(lewa);
+								wiersz.appendChild(pasekKontener);
+								wiersz.appendChild(punktySpan);
+								
 								tablica.appendChild(wiersz);
-								const procent=(element.points/punktyMax)*100;
 							});
 						})
 					}
 				});
 			});
+			
 			tablica.addEventListener('click',()=>{
 				fetch('/leaderboard-full', {
 					method: 'GET',
@@ -224,7 +246,18 @@
 							daneUzytkownikow.forEach(u=>{
 								u.procent=(u.punkty/punktyMax)*100;
 							});
-							const wiersze=daneUzytkownikow.map(u=>`<tr><td>${u.miejsce}</td><td>${u.nazwa}</td><td style="text-align:right;">${u.punkty}</td></tr>`).join('');
+							const wiersze=daneUzytkownikow.map(u=>`
+								<tr>
+									<td>${u.miejsce}</td>
+									<td>${u.nazwa}</td>
+									<td style="text-align:right;">
+										<div class="pasek-kontener-tabela">
+											<div class="pasek-wypelnienie-tabela" style="width:${u.procent}%;"></div>
+											<span class="punkty-tabela">${u.punkty}</span>
+										</div>
+									</td>
+								</tr>
+							`).join('');
 							otworzModal(`<h2>Pełna tablica wyników</h2><p style="font-size:13px;color:#777;margin-top:4px;">Lista automatycznie dostosowuje się do liczby użytkowników.</p><table id="pelnaTabela"><thead><tr><th>#</th><th>Uczestnik</th><th style="text-align:right;">Punkty</th></tr></thead><tbody>${wiersze}</tbody></table>`);
 						});
 					}
