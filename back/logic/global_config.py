@@ -6,6 +6,7 @@ class GlobalConfig:
 
     QR_POINTS_CONST = 5
     QUIZ_ANSWER_POINTS_CONST = 3
+    ALL_POINTS = 0
 
     def __init__(self):
         pass
@@ -21,6 +22,23 @@ class GlobalConfig:
     @staticmethod
     def generate_token() -> str:
         return secrets.token_hex(32)
-    
+    @classmethod
+    def _calculate_all_points(cls):
+        from qr_data import QRData, QuizzQuestion
+        all_codes = QRData.get_all_qrs()
+        if all_codes is not None:
+            for code in all_codes:
+                cls.ALL_POINTS += cls.QR_POINTS_CONST
+                if code.has_quiz:
+                    questions = QuizzQuestion.get_by_qr_code_id(code.id)
+                    if questions is not None:
+                        for question in questions:
+                            cls.ALL_POINTS += cls.QUIZ_ANSWER_POINTS_CONST
+                    else:
+                        print(f"Nie można pobrać pytań quizowych dla kodu QR o ID {code.id}")
+        else:
+            print("Nie można pobrać kodów QR z bazy danych")
+            return None
 
 global_config = GlobalConfig()
+global_config._calculate_all_points()
