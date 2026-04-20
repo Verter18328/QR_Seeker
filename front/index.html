@@ -171,7 +171,7 @@
 				method: 'POST',
 				headers: { 
 					'Content-Type': 'application/json',
-					'token': userToken
+					'Authorization': userToken
 				}, 
 			})
 			.then(response => {
@@ -211,7 +211,7 @@
 	});
 
 	function otworzQrModal(){
-		otworzModal(`<h2>Skaner QR</h2><p style="margin-top:8px;font-size:14px;color:#555;">Tutaj może pojawić się skaner QR.</p>`);
+		otworzModal(`<h2>Skaner QR</h2><div id="reader" style="width: 100%; max-width: 500px; margin: auto; border: 1px solid #ccc;"></div>`);
 	}
 
 	roboczy.addEventListener('click',()=>{
