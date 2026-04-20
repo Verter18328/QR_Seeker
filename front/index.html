@@ -30,11 +30,6 @@
 
 		<section id="tablica">
 			<h3>Tablica wyników</h3>
-			<div class="wiersz"><span>1 Jan Kowalski</span><span>120</span></div>
-			<div class="wiersz"><span>2 Anna Nowak</span><span>110</span></div>
-			<div class="wiersz"><span>3 Piotr Wiśniewski</span><span>98</span></div>
-			<div class="wiersz"><span>4 Kamil Lewandowski</span><span>90</span></div>
-			<div class="wiersz"><span>5 Ola Mazur</span><span>85</span></div>
 		</section>
 
 		<button id="roboczy">przycisk</button>
@@ -164,8 +159,8 @@
 			});
 
 			document.addEventListener('DOMContentLoaded', ()=>{
+				// Pobierz token i dane gracza
 				const userToken = localStorage.getItem('userToken') || null;
-
 				if(userToken){
 					fetch('/get-player', {
 						method: 'GET',
@@ -185,14 +180,55 @@
 							})
 						}
 					})
-						
 				}
 				
-			})
-
+				// Leaderboard loading
+				fetch('/leaderboard-short', {
+					method: 'GET',
+					headers: { 
+						'Content-Type': 'application/json'
+					}
+				}).then(response=>{
+					if(response.ok){
+						return response.json().then(data=>{
+							console.log('Pobrano tablicę wyników ', data.leaderboard);
+							const punktyMax=data.all_points;
+							const leaderboard=data.leaderboard;
+							leaderboard.forEach(element => {
+								const wiersz=document.createElement('div');
+								wiersz.classList.add('wiersz');
+								wiersz.innerHTML=`<span class="numer_imie">${element.rank} ${element.nickname}</span><span class="punkty">${element.points}</span>`;
+								tablica.appendChild(wiersz);
+								const procent=(element.points/punktyMax)*100;
+							});
+						})
+					}
+				});
+			});
 			tablica.addEventListener('click',()=>{
-				const wiersze=daneUzytkownikow.map(u=>`<tr><td>${u.miejsce}</td><td>${u.nazwa}</td><td style="text-align:right;">${u.punkty}</td></tr>`).join('');
-				otworzModal(`<h2>Pełna tablica wyników</h2><p style="font-size:13px;color:#777;margin-top:4px;">Lista automatycznie dostosowuje się do liczby użytkowników.</p><table id="pelnaTabela"><thead><tr><th>#</th><th>Uczestnik</th><th style="text-align:right;">Punkty</th></tr></thead><tbody>${wiersze}</tbody></table>`);
+				fetch('/leaderboard-full', {
+					method: 'GET',
+					headers: { 
+						'Content-Type': 'application/json'
+					}
+				}).then(response=>{
+					if(response.ok){
+						return response.json().then(data=>{
+							console.log('Pobrano pełną tablicę wyników ', data.leaderboard);
+							const daneUzytkownikow=data.leaderboard.map((entry, index) => ({
+								miejsce: entry.rank,
+								nazwa: entry.nickname,
+								punkty: entry.points
+							}));
+							const punktyMax=data.all_points;
+							daneUzytkownikow.forEach(u=>{
+								u.procent=(u.punkty/punktyMax)*100;
+							});
+							const wiersze=daneUzytkownikow.map(u=>`<tr><td>${u.miejsce}</td><td>${u.nazwa}</td><td style="text-align:right;">${u.punkty}</td></tr>`).join('');
+							otworzModal(`<h2>Pełna tablica wyników</h2><p style="font-size:13px;color:#777;margin-top:4px;">Lista automatycznie dostosowuje się do liczby użytkowników.</p><table id="pelnaTabela"><thead><tr><th>#</th><th>Uczestnik</th><th style="text-align:right;">Punkty</th></tr></thead><tbody>${wiersze}</tbody></table>`);
+						});
+					}
+				}).catch(err => console.error("Błąd przy pobieraniu leaderboard:", err));
 			});
 
 			kafle.addEventListener('click',(e)=>{

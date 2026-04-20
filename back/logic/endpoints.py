@@ -53,11 +53,11 @@ class Endpoints:
         
         @self.app.get("/leaderboard-short")
         def leaderboard_short():
-            limit = 10
+            limit = 5
             leaderboard = Player.get_leaderboard(limit)
             if leaderboard is not None:
                 return {"all_points": global_config.ALL_POINTS, "leaderboard": [
-                    {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
+                    {"rank": entry["rank"], "nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard
                     ]}
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
@@ -68,7 +68,7 @@ class Endpoints:
             leaderboard = Player.get_leaderboard(limit)
             if leaderboard is not None:
                 return {"all_points": global_config.ALL_POINTS, "leaderboard": [
-                    {entry["rank"]: {"nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard}
+                    {"rank": entry["rank"], "nickname": entry["nickname"], "points": entry["points"]} for entry in leaderboard
                     ]}
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
