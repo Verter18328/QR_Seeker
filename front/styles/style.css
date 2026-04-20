@@ -155,8 +155,6 @@ header::after{
   color:var(--szary);
   margin-top:6px;
 }
-
-/* ----- NOWE STYLE DLA WIERSZA Z PASKIEM (PODSTAWOWA TABLICA) ----- */
 .wiersz{
   display:flex;
   align-items:center;
@@ -191,7 +189,6 @@ header::after{
   min-width:45px;
   text-align:right;
 }
-
 #kafle{
   display:flex;
   overflow-x:auto;
@@ -320,8 +317,6 @@ header::after{
 .przyciskLogowania:hover{
   background:var(--glownyCiemny);
 }
-
-/* ----- STYLE DLA PEŁNEJ TABELI (MODAL) ----- */
 #pelnaTabela{
   width:100%;
   border-collapse:collapse;
@@ -345,15 +340,14 @@ header::after{
   display:flex;
   align-items:center;
   gap:8px;
-  width:100%;
   justify-content:flex-end;
 }
 .pasek-wypelnienie-tabela{
+  width:120px;
   height:8px;
   background:var(--glowny);
   border-radius:20px;
-  width:0%; /* ustawiane dynamicznie */
-  max-width:100%;
+  max-width:120px;
   flex-shrink:0;
 }
 .punkty-tabela{
@@ -363,7 +357,6 @@ header::after{
   text-align:right;
   flex-shrink:0;
 }
-
 footer{
   text-align:center;
   font-size:12px;

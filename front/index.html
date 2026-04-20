@@ -158,7 +158,6 @@
 			});
 
 			document.addEventListener('DOMContentLoaded', ()=>{
-				// Pobierz token i dane gracza
 				const userToken = localStorage.getItem('userToken') || null;
 				if(userToken){
 					fetch('/get-player', {
@@ -181,7 +180,6 @@
 					})
 				}
 				
-				// Leaderboard loading
 				fetch('/leaderboard-short', {
 					method: 'GET',
 					headers: { 
@@ -197,12 +195,10 @@
 								const wiersz=document.createElement('div');
 								wiersz.classList.add('wiersz');
 								
-								// lewa część: pozycja i nick
 								const lewa = document.createElement('span');
 								lewa.className = 'numer_imie';
 								lewa.textContent = `${element.rank} ${element.nickname}`;
 								
-								// środkowa część: pasek postępu
 								const procent = (element.points / punktyMax) * 100;
 								const pasekKontener = document.createElement('div');
 								pasekKontener.className = 'pasek-kontener';
@@ -211,7 +207,6 @@
 								pasek.style.width = `${procent}%`;
 								pasekKontener.appendChild(pasek);
 								
-								// prawa część: punkty
 								const punktySpan = document.createElement('span');
 								punktySpan.className = 'punkty';
 								punktySpan.textContent = element.points;
