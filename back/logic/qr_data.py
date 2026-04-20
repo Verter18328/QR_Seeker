@@ -24,11 +24,15 @@ class QRData:
         return None
 
     def insert_scan(self, player_id):
+        query = "SELECT id FROM scans WHERE player_id = %s AND qr_id = %s"
+        result = database_conn.execute_query(query, (player_id, self.id))
+        if result:
+            return False, "Ten kod QR został już zeskanowany przez tego gracza"
         query = "INSERT INTO scans (player_id, qr_id) VALUES (%s, %s)"
         result = database_conn.execute_query(query, (player_id, self.id))
         if result is not None:
-            return True
-        return None
+            return True, "Skanowanie kodu QR zakończone sukcesem"
+        return None, "Nie udało się zarejestrować skanu QR"
     def get_all_player_scans(self, player_id):
         query = "SELECT qr_id FROM scans WHERE player_id = %s"
         result = database_conn.execute_query(query, (player_id,))
