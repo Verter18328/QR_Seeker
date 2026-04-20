@@ -11,9 +11,7 @@ class DatabaseConnection:
         self.database_url = database_url
         self._pool = ConnectionPool(database_url, kwargs={"row_factory": dict_row}, min_size=1, max_size=10, max_idle=300)
 
-    def execute_query(self, query, params=None):
-        query = query.strip()
-        first_word = query.split()[0].upper()
+    def _run_query(self, query, params, first_word):
         result = None
         with self._pool.connection() as conn:
             cursor = conn.cursor()
@@ -28,31 +26,30 @@ class DatabaseConnection:
                     conn.rollback()
                 except psycopg.Error:
                     pass
-                return None
+                raise
             if first_word == "SELECT":
                 result = cursor.fetchall()
             elif first_word == "INSERT":
-                try:
-                    conn.commit()
-                    result = cursor.fetchone()
-                except psycopg.Error as e:
-                    print(f"Database error: {e}")
-                    try:
-                        conn.rollback()
-                    except psycopg.Error:
-                        pass
-                    return None
+                conn.commit()
+                result = cursor.fetchone()
             else:
-                try:
-                    conn.commit()
-                    result = cursor.rowcount
-                except psycopg.Error as e:
-                    print(f"Database error: {e}")
-                    try:
-                        conn.rollback()
-                    except psycopg.Error:
-                        pass
-                    return None
+                conn.commit()
+                result = cursor.rowcount
         return result
+
+    def execute_query(self, query, params=None):
+        query = query.strip()
+        first_word = query.split()[0].upper()
+        try:
+            return self._run_query(query, params, first_word)
+        except psycopg.OperationalError:
+            try:
+                return self._run_query(query, params, first_word)
+            except psycopg.Error as e:
+                print(f"Database error on retry: {e}")
+                return None
+        except psycopg.Error as e:
+            print(f"Database error: {e}")
+            return None
     
 database_conn = DatabaseConnection()
