@@ -32,7 +32,7 @@ class Endpoints:
             if saved_player:
                 return {"message": "Gracz zarejestrowany pomyślnie", "token": saved_player.token}
             else:
-                raise HTTPException(status_code=500, detail="Nie udało się zarejestrować gracza")
+                raise HTTPException(status_code=445 , detail="Nie udało się zarejestrować gracza")
         
         @self.app.post("/login")
         def login(data: PlayerLoginRequest):
@@ -95,17 +95,15 @@ class Endpoints:
             scan_insert, message = qr_data.insert_scan(player.id)
             if not scan_insert:
                 raise HTTPException(status_code=444, detail=message)
-            if not qr_data.has_quiz:
-                player.update_points(global_config.QR_POINTS_CONST)
-                return {"message": f"Skanowanie kodu QR zakończone sukcesem! Zdobyłeś {global_config.QR_POINTS_CONST} punktów.", "label": qr_data.label}
-            else:
+            player.update_points(global_config.QR_POINTS_CONST)
+            if qr_data.has_quiz:
                 questions = QuizzQuestion.get_by_qr_code_id(qr_data.id)
                 if not questions:
                     raise HTTPException(status_code=436, detail="Nie znaleziono pytania quizowego dla tego kodu QR")
                 for question in questions:
                     if not question.answers:
                         raise HTTPException(status_code=437, detail=f"Nie znaleziono odpowiedzi dla {question.question_text}")
-                return {"message": "Skanowanie kodu QR zakończone sukcesem! Ten kod QR zawiera quiz.",
+                return {"message": f"Skanowanie kodu QR zakończone sukcesem, zdobyłeś {global_config.QR_POINTS_CONST} punktów. Ten kod QR zawiera quiz.",
                     "label": qr_data.label,
                     "questions": [
                     { 
@@ -115,6 +113,8 @@ class Endpoints:
                         "answers": question.answers
                     } for question in questions
                 ]}
+            else:
+                return {"message": f"Skanowanie kodu QR zakończone sukcesem, zdobyłeś {global_config.QR_POINTS_CONST} punktów.", "label": qr_data.label}
 
 
         @self.app.get("/submit-quiz-answer/{answer}/{question_id}")

@@ -29,11 +29,11 @@ class DatabaseConnection:
         if first_word == "SELECT":
             return cursor.fetchall()
         elif first_word == "INSERT":
-            conn.commit()
             try:
                 result = cursor.fetchone()
             except psycopg.ProgrammingError:
                 result = cursor.rowcount
+            conn.commit()
         else:
             conn.commit()
             return cursor.rowcount
