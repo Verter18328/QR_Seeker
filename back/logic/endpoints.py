@@ -85,8 +85,12 @@ class Endpoints:
         def get_name(player = Depends(require_auth)):
             return {"name": player.name}
         
-        @self.app.post("/qr-scan/{code_id}")
-        def handle_qr_code_scan(code_id: int, player = Depends(require_auth)):
+        class QRScan(BaseModel):
+            code_id: int
+        
+        @self.app.post("/qr-scan")
+        def handle_qr_code_scan(qr_scan: QRScan, player = Depends(require_auth)):
+            code_id = qr_scan.code_id
             if not code_id:
                 raise HTTPException(status_code=400, detail="code_id jest wymagane")
             qr_data = QRData.get_by_code_id(code_id)
@@ -115,8 +119,15 @@ class Endpoints:
                         "answers": question.answers
                     } for question in questions
                 ]}
-        @self.app.post("/submit-quiz-answer/{answer}/{question_id}")
-        def submit_quiz_answer(answer: str, question_id: int, player = Depends(require_auth)):
+            
+        class QuizAnswerSubmission(BaseModel):
+            answer: str
+            question_id: int
+
+        @self.app.post("/submit-quiz-answer")
+        def submit_quiz_answer(quiz_answer: QuizAnswerSubmission, player = Depends(require_auth)):
+            answer = quiz_answer.answer
+            question_id = quiz_answer.question_id
             if not answer or not question_id:
                 raise HTTPException(status_code=400, detail="answer i question_id są wymagane")
             question = QuizzQuestion.get_by_id(question_id)
@@ -142,6 +153,6 @@ class Endpoints:
         def get_player_scans(player = Depends(require_auth)):
             scans_data = QRData().get_all_player_scans(player.id)
             if scans_data is not None:
-                return scans_data
+                return global_config.ALL_QRS, scans_data
             else:
                 raise HTTPException(status_code=500, detail="Nie udało się pobrać danych z bazy")
