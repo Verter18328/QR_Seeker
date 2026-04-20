@@ -21,10 +21,10 @@ class Endpoints:
             nickname = data.nickname
             password = data.password
             if not nickname or not password:
-                raise HTTPException(status_code=400, detail="Nazwa użytkownika i hasło są wymagane")
+                raise HTTPException(status_code=427, detail="Nazwa użytkownika i hasło są wymagane")
             existing_player = Player.get_player_by_name(nickname)
             if existing_player:
-                raise HTTPException(status_code=400, detail="Ta nazwa użytkownika jest już zajęta")
+                raise HTTPException(status_code=428, detail="Ta nazwa użytkownika jest już zajęta")
             password_hash = global_config.hash_password(password)
             token = global_config.generate_token()
             new_player = Player(name=nickname, password_hash=password_hash, token=token)
@@ -43,12 +43,12 @@ class Endpoints:
 
 
             if not nickname or not password:
-                raise HTTPException(status_code=400, detail="Nazwa użytkownika i hasło są wymagane")
+                raise HTTPException(status_code=429, detail="Nazwa użytkownika i hasło są wymagane")
             player = Player.get_player_by_name(nickname)
             if not player:
-                raise HTTPException(status_code=400, detail="Gracz o tej nazwie użytkownika nie istnieje")
+                raise HTTPException(status_code=430, detail="Gracz o tej nazwie użytkownika nie istnieje")
             if not global_config.verify_password(password, player.password_hash):
-                raise HTTPException(status_code=400, detail="Nieprawidłowa nazwa użytkownika lub hasło")
+                raise HTTPException(status_code=431, detail="Nieprawidłowa nazwa użytkownika lub hasło")
             return {"message": "Zalogowano pomyślnie", "token": player.token}
         
         @self.app.get("/leaderboard-short")
@@ -75,10 +75,10 @@ class Endpoints:
 
         def require_auth(Authorization: str = Header(None)):
             if not Authorization:
-                raise HTTPException(status_code=401, detail="Token jest wymagany")
+                raise HTTPException(status_code=432, detail="Token jest wymagany")
             player = Player.get_player_by_token(Authorization)
             if not player:
-                raise HTTPException(status_code=401, detail="Nieprawidłowy token")
+                raise HTTPException(status_code=433, detail="Nieprawidłowy token")
             return player
         
         @self.app.get("/get-player")
@@ -88,10 +88,10 @@ class Endpoints:
         @self.app.get("/qr-scan/{code_id}")
         def handle_qr_code_scan(code_id: int, player = Depends(require_auth)):
             if not code_id:
-                raise HTTPException(status_code=400, detail="code_id jest wymagane")
+                raise HTTPException(status_code=434, detail="code_id jest wymagane")
             qr_data = QRData.get_by_code_id(code_id)
             if not qr_data:
-                raise HTTPException(status_code=404, detail="Nie znaleziono danych dla tego kodu QR")
+                raise HTTPException(status_code=435, detail="Nie znaleziono danych dla tego kodu QR")
             scan_insert, message = qr_data.insert_scan(player.id)
             if not scan_insert:
                 raise HTTPException(status_code=500, detail=message)
@@ -101,10 +101,10 @@ class Endpoints:
             else:
                 questions = QuizzQuestion.get_by_qr_code_id(qr_data.id)
                 if not questions:
-                    raise HTTPException(status_code=404, detail="Nie znaleziono pytania quizowego dla tego kodu QR")
+                    raise HTTPException(status_code=436, detail="Nie znaleziono pytania quizowego dla tego kodu QR")
                 for question in questions:
                     if not question.answers:
-                        raise HTTPException(status_code=404, detail=f"Nie znaleziono odpowiedzi dla {question.question_text}")
+                        raise HTTPException(status_code=437, detail=f"Nie znaleziono odpowiedzi dla {question.question_text}")
                 return {"message": "Skanowanie kodu QR zakończone sukcesem! Ten kod QR zawiera quiz.",
                     "label": qr_data.label,
                     "questions": [
@@ -120,10 +120,10 @@ class Endpoints:
         @self.app.get("/submit-quiz-answer/{answer}/{question_id}")
         def submit_quiz_answer(answer: str, question_id: int, player = Depends(require_auth)):
             if not answer or not question_id:
-                raise HTTPException(status_code=400, detail="answer i question_id są wymagane")
+                raise HTTPException(status_code=438, detail="answer i question_id są wymagane")
             question = QuizzQuestion.get_by_id(question_id)
             if not question:
-                raise HTTPException(status_code=404, detail="Nie znaleziono pytania quizowego o podanym ID")
+                raise HTTPException(status_code=439, detail="Nie znaleziono pytania quizowego o podanym ID")
             if question.type == "text":
                 if answer in question.answers and question.answers[answer][0]:
                     player.update_points(global_config.QUIZ_POINTS_CONST)
@@ -132,7 +132,7 @@ class Endpoints:
                     return {"message": "Odpowiedź niepoprawna."}
             else:
                 if answer not in question.answers:
-                    raise HTTPException(status_code=404, detail="Nie znaleziono odpowiedzi o podanym tekście dla tego pytania quizowego")
+                    raise HTTPException(status_code=440, detail="Nie znaleziono odpowiedzi o podanym tekście dla tego pytania quizowego")
                 is_correct, answer_id = question.answers[answer]
                 if is_correct:
                     player.update_points(global_config.QUIZ_POINTS_CONST)
