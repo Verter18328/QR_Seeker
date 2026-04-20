@@ -106,6 +106,13 @@ header::after{
   border-radius:20px;
   box-shadow:0 2px 8px rgba(0,0,0,0.05);
   cursor:pointer;
+  display:flex;
+  justify-content:center;
+  align-items: center;
+}
+#qrImage{
+  height: 130px;
+  width: 130px;
 }
 #qrMini{
   position:fixed;
@@ -148,12 +155,43 @@ header::after{
   color:var(--szary);
   margin-top:6px;
 }
+
+/* ----- NOWE STYLE DLA WIERSZA Z PASKIEM (PODSTAWOWA TABLICA) ----- */
 .wiersz{
   display:flex;
-  justify-content:space-between;
-  padding:6px 0;
+  align-items:center;
+  gap:10px;
+  padding:8px 0;
   font-size:14px;
 }
+.numer_imie{
+  flex:0 0 30%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pasek-kontener{
+  flex:1;
+  height:8px;
+  background:#e9e9f0;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,0.03);
+}
+.pasek-wypelnienie{
+  height:100%;
+  background:var(--glowny);
+  border-radius:20px;
+  transition:width 0.2s ease;
+}
+.punkty{
+  flex:0 0 auto;
+  font-weight:600;
+  color:var(--glowny);
+  min-width:45px;
+  text-align:right;
+}
+
 #kafle{
   display:flex;
   overflow-x:auto;
@@ -282,6 +320,8 @@ header::after{
 .przyciskLogowania:hover{
   background:var(--glownyCiemny);
 }
+
+/* ----- STYLE DLA PEŁNEJ TABELI (MODAL) ----- */
 #pelnaTabela{
   width:100%;
   border-collapse:collapse;
@@ -290,13 +330,40 @@ header::after{
 }
 #pelnaTabela th,
 #pelnaTabela td{
-  padding:6px 4px;
+  padding:8px 4px;
+  border-bottom:1px solid #eee;
 }
 #pelnaTabela th{
   text-align:left;
   font-weight:600;
   background:#fafafa;
 }
+#pelnaTabela td:last-child{
+  text-align:right;
+}
+.pasek-kontener-tabela{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  justify-content:flex-end;
+}
+.pasek-wypelnienie-tabela{
+  height:8px;
+  background:var(--glowny);
+  border-radius:20px;
+  width:0%; /* ustawiane dynamicznie */
+  max-width:100%;
+  flex-shrink:0;
+}
+.punkty-tabela{
+  font-weight:600;
+  color:var(--glowny);
+  min-width:45px;
+  text-align:right;
+  flex-shrink:0;
+}
+
 footer{
   text-align:center;
   font-size:12px;
