@@ -56,7 +56,7 @@ class QuizzQuestion:
         self.answers_robocze = QuizzAnswer.get_by_question_id(self.id)
         if self.answers_robocze is not None:
             for answer in self.answers_robocze:
-                self.answers[answer.answer_text] = answer.is_correct, answer.id
+                self.answers ={"answer_text": answer.answer_text ,"is_correct": answer.is_correct, "id": answer.id}
         else:
             self.answers = None
     @staticmethod
