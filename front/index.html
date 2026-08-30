@@ -32,8 +32,6 @@
 			<h3>Tablica wyników</h3>
 		</section>
 
-		<button id="roboczy">przycisk</button>
-
 		<section id="kafle" aria-label="Karuzela informacji">
 			<article class="kafel" data-slajd="szkola"><span>Więcej o szkole</span></article>
 			<article class="kafel" data-slajd="plan"><span>Plan drzwi otwartych</span></article>
@@ -59,7 +57,6 @@
 	<script src="scripts/index.js"></script>
 	<script src="scripts/auth.js"></script>
 	<script src="scripts/qr.js"></script>
-	<script src="scripts/quizz.js"></script>
 	<script>
 		(function(){
 			const kafle=document.getElementById('kafle');
@@ -122,7 +119,11 @@
 
 			logoProfilowe.addEventListener('click',()=>{
 				if(zalogowany){
-					otworzModal(`<h2>Witaj, ${nazwaUzytkownika}!</h2><p style="margin-top:10px;font-size:15px;">Jesteś zalogowany.</p><p style="margin-top:20px;font-size:14px;color:#555;">Zespół Szkół Komunikacji życzy miłego dnia!</p>`);
+					otworzModal(`<h2>Witaj, ${nazwaUzytkownika}!</h2><p style="margin-top:10px;font-size:15px;">Jesteś zalogowany.</p><p style="margin-top:20px;font-size:14px;color:#555;">Zespół Szkół Komunikacji życzy miłego dnia!</p><button id="logOut">Wyloguj</button>`);
+					document.querySelector('#logOut').onclick = ()=>{
+						localStorage.removeItem('userToken');
+						location.reload();
+					}
 					return;
 				}
 
@@ -281,9 +282,9 @@
 				createQrScaner();
 			}
 
-			roboczy.addEventListener('click',()=>{
-				otworzModal(`<h2>okno</h2>`);
-			});
+			function otworzQuizModal(){
+				otworzModal(`<h2>Quiz - <nazwa quizu></h2>`);
+			}
 
 			qrGlowny.addEventListener('click',otworzQrModal);
 			qrMini.addEventListener('click',otworzQrModal);
@@ -295,6 +296,7 @@
 			});
 		})();
 	</script>
+	<script src="scripts/quizz.js"></script>
 	
 </body>
 </html>

@@ -1,36 +1,46 @@
 function createQrScaner(){
     const html5QrCode = new Html5Qrcode("reader");
 
+    let scaned = false;
+
     const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-        console.log(`Zeskanowano: ${decodedText}`);
-        document.getElementById('result-info').innerText = "Przetwarzanie...";
+        if (!scaned){
+            console.log(`Zeskanowano: ${decodedText}`);
+            document.getElementById('result-info').innerText = "Przetwarzanie...";
+            scaned = true;
 
-        const userToken = localStorage.getItem('userToken');
+            const userToken = localStorage.getItem('userToken');
 
-        fetch(`/qr-scan/${decodedText}`,{
-            method: 'GET',
-            headers: { 
-				'Content-Type': 'application/json',
-				'Authorization': userToken
-			}
-        })
-        .then(response => {
-			if(response.ok){
-                document.getElementById('result-info').innerText = "Pomyślnie zeskanowano kod qr!";
-				return response.json().then(data => {
-                    document.getElementById('result-info').innerText = data.message;
-                    if(data.questions){
-                        document.querySelector('#quiz_button').style = 'display: block;';
-                        document.querySelector('#quiz_button').onclick = ()=>{
-                            
+            fetch(`/qr-scan/${decodedText}`,{
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': userToken
+                }
+            })
+            .then(response => {
+                if(response.ok){
+                    document.getElementById('result-info').innerText = "Pomyślnie zeskanowano kod qr!";
+                    return response.json().then(data => {
+                        document.getElementById('result-info').innerText = data.message;
+                        if(data.questions){
+                            console.log(data.questions);
+                            document.querySelector('#quiz_button').style = 'display: block;';
+                            document.querySelector('#quiz_button').onclick = ()=>{
+                                generateQuiz(data.questions)
+                            }
                         }
-                    }
-				})
-			}
-            else{
-                document.getElementById('result-info').innerText = "Wystąpił błąd podczas skanowania kodu qr!";
-            }
-		})
+                        else{
+                            scaned = false;
+                        }
+                    })
+                }
+                else{
+                    document.getElementById('result-info').innerText = "Wystąpił błąd podczas skanowania kodu qr!";
+                }
+            })
+        
+        }
     }
 
     const config = { fps: 10, qrbox: { width: 550, height: 550 } };

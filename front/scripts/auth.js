@@ -13,6 +13,7 @@ function logIn() {
         })
     })
     .then(response => {
+        console.log(response.status)
         if (response.ok) {
             return response.json().then(data => {
                 console.log('Zalogowano');
@@ -20,7 +21,7 @@ function logIn() {
                 localStorage.setItem('userToken', userToken);
             });
         } 
-        else if (response.status === 400) {
+        else if (response.status == 430) {
             console.log('Proba rejestracji');
             return fetch('/register', {
                 method: 'POST',

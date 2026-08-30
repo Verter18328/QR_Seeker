@@ -94,6 +94,7 @@ class Endpoints:
                 raise HTTPException(status_code=435, detail="Nie znaleziono danych dla tego kodu QR")
             scan_insert, message = qr_data.insert_scan(player.id)
             if not scan_insert:
+                print(message)
                 raise HTTPException(status_code=444, detail=message)
             player.update_points(global_config.QR_POINTS_CONST)
             if qr_data.has_quiz:
